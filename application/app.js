@@ -1,3 +1,39 @@
+function writeToCSVFile(array, name, extract) {
+    const filename = name;
+    fs.writeFile(filename, extract(array), err => {
+      if (err) {
+        console.log('Error writing to csv file', err);
+      } else {
+        console.log(`saved as ${filename}`);
+      }
+    });
+}
+
+function extractAsCSV(array) {
+    const header = ["id, sigla, nome_uf"];
+    const rows = array.map(uf =>
+       `${uf.id}, ${uf.sigla}, ${uf.nome_uf}`
+    );
+    return header.concat(rows).join("\n");
+}
+
+function extractAsCSVCidade(array) {
+    const header = ["id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi"];
+    const rows = array.map(cidade =>
+       `${cidade.id}, ${cidade.nome}, ${cidade.populacao}, ${cidade.latitude}, ${cidade.longitude}, ${cidade.cod_ibge}, ${cidade.cod_siafi}`
+    );
+    return header.concat(rows).join("\n");
+}
+
+function extractAsCSVEmpresa(array) {
+    const header = ["id, slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte"];
+    const rows = array.map(empresa =>
+       `${empresa.id}, ${empresa.slug}, ${empresa.nome_fantasia}, ${empresa.dt_inicio_atividade}, ${empresa.cnae_fiscal}, ${empresa.cep}, ${empresa.porte}`
+    );
+    return header.concat(rows).join("\n");
+}
+
+
 function nextElem(array){
     let i = 0;
     const interator = {
@@ -70,6 +106,7 @@ function getNameUf(cod){
     }
 }
 
+const slugg = require('slug');
 const csv = require('csv-parser');
 const fs = require('fs');           //File System
 
@@ -79,6 +116,8 @@ const cidades_siafi = [];
 const cidades_populacao = [];
 
 const ufDB = [];
+const cidadeDB = [];
+const empresaDB = [];
 
 const uf_path = '/home/marcusledo/Documents/atividade2/CSVs/uf.csv';
 const empresas_path = '/home/marcusledo/Documents/atividade2/CSVs/empresas_bahia.csv';
@@ -92,7 +131,8 @@ fs.createReadStream(empresas_path).pipe(csv()).on('data', (row) => {
         dt_inicio_atividades: row[properties[1]],
         cnae_fiscal: row[properties[2]],
         cep: row[properties[3]],
-        municipio: row[properties[4]]
+        municipio: row[properties[4]],
+        porte: row[properties[5]]
     };
 
     empresas.push(empresa);
@@ -147,5 +187,56 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
 
         elementUF = walkerUF.next();
     }
-    console.log(ufDB);
+
+    //console.log(ufDB);
+    writeToCSVFile(ufDB, "uf_DB.csv", extractAsCSV);
+
+    const walkerCidadeSiafi = nextElem(cidades_siafi);
+    let elementSiafi = walkerCidadeSiafi.next();
+    id = 1;
+    while(elementSiafi){
+        const cidadeObj = {};
+        cidadeObj.id = id;
+        cidadeObj.nome = elementSiafi.nome;
+        cidadeObj.latitude = elementSiafi.latitude;
+        cidadeObj.longitude = elementSiafi.longitude;
+        cidadeObj.cod_ibge = elementSiafi.codigo_ibge;
+        cidadeObj.cod_siafi = elementSiafi.siafi_id;
+        let tempObj = {};
+        for(let i = 0; i < cidades_populacao.length; i++){
+            tempObj = cidades_populacao[i];
+            if(elementSiafi.codigo_ibge == tempObj.cod_ibge)
+                break;
+        }
+       cidadeObj.populacao = tempObj.populacao;
+       cidadeDB.push(cidadeObj);
+       id++;
+       elementSiafi = walkerCidadeSiafi.next();
+    }
+
+    //console.log(cidadeDB);
+    writeToCSVFile(cidadeDB, "cidade_DB.csv", extractAsCSVCidade);
+
+    const walkerEmpresa = nextElem(empresas);
+    let elementEmpresa = walkerEmpresa.next();
+    id = 1;
+
+    while(elementEmpresa){
+        const empresaObj = {};
+        empresaObj.id = id;
+        empresaObj.slug = slugg(elementEmpresa.nome_fantasia);
+        empresaObj.nome_fantasia = elementEmpresa.nome_fantasia;
+        empresaObj.dt_inicio_atividade = elementEmpresa.dt_inicio_atividades;
+        empresaObj.cnae_fiscal = elementEmpresa.cnae_fiscal;
+        empresaObj.cep = elementEmpresa.cep;
+        empresaObj.porte = elementEmpresa.porte;
+
+        empresaDB.push(empresaObj);
+        id++;
+
+        elementEmpresa = walkerEmpresa.next();
+    }
+
+    writeToCSVFile(empresaDB, "empresa_DB.csv", extractAsCSVEmpresa);
+
 })
