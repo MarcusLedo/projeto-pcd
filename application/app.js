@@ -12,7 +12,7 @@ function writeToCSVFile(array, name, extract) {
 function extractAsCSV(array) {
     const header = ["id, sigla, nome_uf"];
     const rows = array.map(uf =>
-       `${uf.id}, ${uf.sigla}, ${uf.nome_uf}`
+       `${uf.id},${uf.sigla},${uf.nome_uf}`
     );
     return header.concat(rows).join("\n");
 }
@@ -20,7 +20,7 @@ function extractAsCSV(array) {
 function extractAsCSVCidade(array) {
     const header = ["id, uf_id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi"];
     const rows = array.map(cidade =>
-       `${cidade.id}, ${cidade.uf_id}, ${cidade.nome}, ${cidade.populacao}, ${cidade.latitude}, ${cidade.longitude}, ${cidade.cod_ibge}, ${cidade.cod_siafi}`
+       `${cidade.id},${cidade.uf_id},${cidade.nome},${cidade.populacao},${cidade.latitude},${cidade.longitude},${cidade.cod_ibge},${cidade.cod_siafi}`
     );
     return header.concat(rows).join("\n");
 }
@@ -28,7 +28,7 @@ function extractAsCSVCidade(array) {
 function extractAsCSVEmpresa(array) {
     const header = ["id, cidade_id, slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte"];
     const rows = array.map(empresa =>
-       `${empresa.id}, ${empresa.cidade_id}, ${empresa.slug}, ${empresa.nome_fantasia}, ${empresa.dt_inicio_atividade}, ${empresa.cnae_fiscal}, ${empresa.cep}, ${empresa.porte}`
+       `${empresa.id},${empresa.cidade_id},${empresa.slug},${empresa.nome_fantasia},${empresa.dt_inicio_atividade},${empresa.cnae_fiscal},${empresa.cep},${empresa.porte}`
     );
     return header.concat(rows).join("\n");
 }
@@ -176,7 +176,7 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
     const walkerUF = nextElem(UFs);
     let elementUF = walkerUF.next();
     let id = 1;
-
+    //console.log(UFs);
     while(elementUF){
         const ufObj = {};
         ufObj.id = id;
@@ -236,7 +236,12 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
         empresaObj.id = id;
         empresaObj.slug = slugg(elementEmpresa.nome_fantasia);
         empresaObj.nome_fantasia = elementEmpresa.nome_fantasia;
-        empresaObj.dt_inicio_atividade = elementEmpresa.dt_inicio_atividades;
+
+        let yyyy = elementEmpresa.dt_inicio_atividades.slice(0, 4);
+        let mm = elementEmpresa.dt_inicio_atividades.slice(4, 6);
+        let dd = elementEmpresa.dt_inicio_atividades.slice(6, 8);
+        empresaObj.dt_inicio_atividade = yyyy + "-" + mm + "-" + dd;
+
         empresaObj.cnae_fiscal = elementEmpresa.cnae_fiscal;
         empresaObj.cep = elementEmpresa.cep;
         empresaObj.porte = elementEmpresa.porte;
