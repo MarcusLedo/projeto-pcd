@@ -18,17 +18,17 @@ function extractAsCSV(array) {
 }
 
 function extractAsCSVCidade(array) {
-    const header = ["id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi"];
+    const header = ["id, uf_id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi"];
     const rows = array.map(cidade =>
-       `${cidade.id}, ${cidade.nome}, ${cidade.populacao}, ${cidade.latitude}, ${cidade.longitude}, ${cidade.cod_ibge}, ${cidade.cod_siafi}`
+       `${cidade.id}, ${cidade.uf_id}, ${cidade.nome}, ${cidade.populacao}, ${cidade.latitude}, ${cidade.longitude}, ${cidade.cod_ibge}, ${cidade.cod_siafi}`
     );
     return header.concat(rows).join("\n");
 }
 
 function extractAsCSVEmpresa(array) {
-    const header = ["id, slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte"];
+    const header = ["id, cidade_id, slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte"];
     const rows = array.map(empresa =>
-       `${empresa.id}, ${empresa.slug}, ${empresa.nome_fantasia}, ${empresa.dt_inicio_atividade}, ${empresa.cnae_fiscal}, ${empresa.cep}, ${empresa.porte}`
+       `${empresa.id}, ${empresa.cidade_id}, ${empresa.slug}, ${empresa.nome_fantasia}, ${empresa.dt_inicio_atividade}, ${empresa.cnae_fiscal}, ${empresa.cep}, ${empresa.porte}`
     );
     return header.concat(rows).join("\n");
 }
@@ -182,6 +182,7 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
         ufObj.id = id;
         ufObj.sigla = elementUF.uf;
         ufObj.nome_uf = getNameUf(elementUF.codigo_uf);
+        ufObj.codigo_uf = elementUF.codigo_uf; 
         ufDB.push(ufObj);
         id++;
 
@@ -203,11 +204,20 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
         cidadeObj.cod_ibge = elementSiafi.codigo_ibge;
         cidadeObj.cod_siafi = elementSiafi.siafi_id;
         let tempObj = {};
+        let tempObjUF = {};
         for(let i = 0; i < cidades_populacao.length; i++){
             tempObj = cidades_populacao[i];
             if(elementSiafi.codigo_ibge == tempObj.cod_ibge)
                 break;
         }
+
+        for(let i = 0; i < ufDB.length; i++){
+            tempObjUF = ufDB[i];
+            if(String(cidadeObj.cod_ibge).slice(0, 2) == tempObjUF.codigo_uf)
+                break;      
+        }
+
+       cidadeObj.uf_id = tempObjUF.id; 
        cidadeObj.populacao = tempObj.populacao;
        cidadeDB.push(cidadeObj);
        id++;
@@ -216,11 +226,11 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
 
     //console.log(cidadeDB);
     writeToCSVFile(cidadeDB, "cidade_DB.csv", extractAsCSVCidade);
-
+    
     const walkerEmpresa = nextElem(empresas);
     let elementEmpresa = walkerEmpresa.next();
     id = 1;
-
+    let cont = 1;
     while(elementEmpresa){
         const empresaObj = {};
         empresaObj.id = id;
@@ -230,6 +240,15 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
         empresaObj.cnae_fiscal = elementEmpresa.cnae_fiscal;
         empresaObj.cep = elementEmpresa.cep;
         empresaObj.porte = elementEmpresa.porte;
+        let tempObjCidade = {};
+
+        for(let i = 0; i < cidadeDB.length; i++){
+            tempObjCidade = cidadeDB[i];
+            if(tempObjCidade.cod_siafi == elementEmpresa.municipio)
+                break;  
+        }
+
+        empresaObj.cidade_id = tempObjCidade.id;
 
         empresaDB.push(empresaObj);
         id++;
@@ -238,5 +257,5 @@ fs.createReadStream(cidade_populacao_path).pipe(csv()).on('data', (row) => {
     }
 
     writeToCSVFile(empresaDB, "empresa_DB.csv", extractAsCSVEmpresa);
-
+    
 })
