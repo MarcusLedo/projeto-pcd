@@ -30,6 +30,8 @@ var con = mysql.createConnection({
     database: "progcd"
 });
 
+
+
 fs.createReadStream(uf_path).pipe(csv()).on('data', (row) => {
     const properties = Object.getOwnPropertyNames(row);
     const ufObj = {};
@@ -78,7 +80,7 @@ fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
     cidade.push(cidadeObj);
 }).on('end', () => {
     //console.log(cidade);
-    
+    /*
     con.connect((err) => {
         if(err) throw err;
         console.log("Connected");
@@ -98,7 +100,7 @@ fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
             console.log("Number of records inserted: " + result.affectedRows);
         });
     });
-    
+    */
 })
 
 fs.createReadStream(empresa_path).pipe(csv()).on('data', (row) => {
@@ -116,7 +118,7 @@ fs.createReadStream(empresa_path).pipe(csv()).on('data', (row) => {
 
     empresa.push(empresaObj);
 }).on('end', () => {
-
+    /*
     con.connect((err) => {
         if(err) throw err;
         console.log("Connected");
@@ -136,4 +138,5 @@ fs.createReadStream(empresa_path).pipe(csv()).on('data', (row) => {
             console.log("Number of records inserted: " + result.affectedRows);
         });
     });
+    */
 })

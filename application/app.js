@@ -134,9 +134,9 @@ fs.createReadStream(empresas_path).pipe(csv()).on('data', (row) => {
         municipio: row[properties[4]],
         porte: row[properties[5]]
     };
-
     empresas.push(empresa);
 })
+
 
 fs.createReadStream(uf_path).pipe(csv()).on('data', (row) => {
     const properties = Object.getOwnPropertyNames(row);
