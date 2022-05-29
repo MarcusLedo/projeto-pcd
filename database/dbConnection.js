@@ -55,7 +55,7 @@ function createEmpresaObj(row){
     return empresaObj;
 }
 
-async function insertUf(){
+function insertUf(){
     let sql = "INSERT INTO Uf (id, sigla, nome_uf) VALUES ?";
     let values = [];
     const walkerUf = nextElem(uf);
@@ -68,11 +68,11 @@ async function insertUf(){
 
     con.query(sql, [values], (err, result) => {
         if (err) throw err;
-        console.log("Number of records inserted: " + result.affectedRows);
+        console.log("Number of records inserted (Uf): " + result.affectedRows);
     });
 }
 
-async function insertCidade(){
+function insertCidade(){
 
     let sql = "INSERT INTO Cidade (id, uf_id, nome, populacao, latitude, longitude, cod_ibge, cod_siafi) VALUES ?";
     let values = [];
@@ -87,11 +87,11 @@ async function insertCidade(){
 
     con.query(sql, [values], (err, result) => {
         if (err) throw err;
-        console.log("Number of records inserted: " + result.affectedRows);
+        console.log("Number of records inserted (Cidade): " + result.affectedRows);
     });
 }
 
-async function insertEmpresa(){
+function insertEmpresa(){
 
     let sql = "INSERT INTO Empresa (id, cidade_id, slug, nome_fantasia, dt_inicio_atividade, cnae_fiscal, cep, porte) VALUES ?";
     let values = [];
@@ -105,8 +105,7 @@ async function insertEmpresa(){
 
     con.query(sql, [values], (err, result) => {
         if (err) throw err;
-        console.log("Number of records inserted: " + result.affectedRows);
-        resultado = result.affectedRows;
+        console.log("Number of records inserted (Empresa): " + result.affectedRows);
     });
 }
 
@@ -137,7 +136,6 @@ con.connect((err) => {
 });
 
 
-
 fs.createReadStream(uf_path).pipe(csv()).on('data', (row) => {
 
     uf.push(createUfObj(row));
@@ -158,6 +156,10 @@ fs.createReadStream(uf_path).pipe(csv()).on('data', (row) => {
 
         }).on('end', () => {
             insertEmpresa();
+
+            con.end((err) => {
+                if (err) return console.log(err.message)
+            });
         });
     });
 });
