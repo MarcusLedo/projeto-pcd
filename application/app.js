@@ -120,7 +120,7 @@ const cidadeDB = [];
 const empresaDB = [];
 
 const uf_path = '/home/marcusledo/Documents/atividade2/CSVs/uf.csv';
-const empresas_path = '/home/marcusledo/Documents/atividade2/CSVs/empresas_bahia.csv';
+const empresas_path = '/home/marcusledo/Documents/atividade2/CSVs/empresas_bahia_lista_3.csv';
 const cidade_siafi_path = '/home/marcusledo/Documents/atividade2/CSVs/cidade_siafi.csv';
 const cidade_populacao_path = '/home/marcusledo/Documents/atividade2/CSVs/cidade_populacao.csv';
 
