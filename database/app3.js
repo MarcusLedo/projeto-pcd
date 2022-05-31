@@ -12,8 +12,9 @@ function getCity(row){
     const city = {};
 
     city.id = row[properties[0]];
+    city.nome = row[properties[2]];
     city.lat = row[properties[4]];
-    city.lon = row[properties[5]];
+    city.lng = row[properties[5]];
 
     return city;
 }
@@ -24,13 +25,14 @@ function getCompany(row){
 
     company.nome = row[properties[0]];
     company.lat = row[properties[7]];
-    company.lon = row[properties[8]];
+    company.lng = row[properties[8]];
 
     return company;
 }
 
 function calculateDistanceUsingLatLonInKm(company, city) {
     "use strict";
+    //console.log(city.lat + ", " + city.lon);
     var deg2rad = function (deg) { return deg * (Math.PI / 180); },
         R = 6371,
         dLat = deg2rad(city.lat - company.lat),
@@ -40,7 +42,8 @@ function calculateDistanceUsingLatLonInKm(company, city) {
             * Math.cos(deg2rad(company.lat))
             * Math.sin(dLng / 2) * Math.sin(dLng / 2),
         c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return ((R * c *1000).toFixed());
+
+    return ((R * c *1000).toFixed()) / 1000;
 }
 
 var mysql = require('mysql');
@@ -52,6 +55,7 @@ const empresa_saida_path = "/home/marcusledo/Documents/atividade2/CSVs/saida.csv
 
 const maiores_cidades = [];
 const empresas = [];
+const empresas_distancias = [];
 
 fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
 
@@ -59,10 +63,19 @@ fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
         maiores_cidades.push(getCity(row));
 
 }).on('end', () => {
-
     fs.createReadStream(empresa_saida_path).pipe(csv()).on('data', (row) => {
         empresas.push(getCompany(row));
     }).on('end', () => {
+        //console.log("empresa: " + empresas[0].lat + "   " + empresas[0].lng);
+        //console.log("cidade: " + maiores_cidades[2].lat + "   " + maiores_cidades[2].lng);
+
+        for(let i = 0; i < empresas.length; i++){
+            empresas[i].dist1 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[2]); //Salvador
+            empresas[i].dist2 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[1]); //Feira de Santana
+            empresas[i].dist3 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[3]); //Vitoria de Conquista
+            empresas[i].dist4 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[0]); //Camaçari
+        }
+
         console.log(empresas);
     })
 })
