@@ -1,0 +1,16 @@
+Universidade Católica de Brasília
+Bacharelado em Ciência da Computação
+Programação Concorrente e Distribuída
+
+Atividade 3 - Referências
+
+MBANUGO, Peter. Reading and Writing to CSV Files in Node.js. Disponível em: <https://heynode.com/blog/2020-02/reading-and-writing-csv-files-nodejs/>. Acesso em 31 maio 2022.
+
+NODEJS. Node.js v18.2.0 documentation. Disponível em: <https://nodejs.org/api/stream.html>. Acesso em 01 jun. 2022.
+
+SANTOS, Lucas. Streams no Node.js: o que são streams, afinal? – Parte 01. Disponível em: <https://imasters.com.br/back-end/streams-no-node-js-o-que-sao-streams-afinal-parte-01>. Acesso em: 01 jun. 2022.
+
+SOARES, Genilson. Distância em metros entre duas coordenadas usando JavaScript. Disponível em: <https://pt.stackoverflow.com/questions/251479/dist%C3%A2ncia-em-metros-entre-duas-coordenadas-usando-javascript>. Acesso em: 01 jun. 2022.
+
+WENDEL, Erick. Quem tem medo de Node.js Streams? - conheça a incrível e poderosa funcionalidade do Node.js. Disponível em: <https://www.youtube.com/watch?v=pB5-QzabL2I>. Acesso em: 01 jun. 2022.
+
