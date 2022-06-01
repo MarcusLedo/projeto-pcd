@@ -46,6 +46,20 @@ function calculateDistanceUsingLatLonInKm(company, city) {
     return ((R * c *1000).toFixed()) / 1000;
 }
 
+function insertDistancesIntoCompanies(empresa){
+    let sql = `UPDATE Empresa SET 
+        dist_1 = ?,
+        dist_2 = ?,
+        dist_3 = ?,
+        dist_4 = ?
+        WHERE nome_fantasia = ?`;
+
+    let values = [empresa.dist1, empresa.dist2, empresa.dist3, empresa.dist4, empresa.nome];
+
+}
+
+//_____________________________________________________________________________________________________________________________________
+
 var mysql = require('mysql');
 const csv = require('csv-parser');
 const fs = require('fs');
@@ -56,6 +70,13 @@ const empresa_saida_path = "/home/marcusledo/Documents/atividade2/CSVs/saida.csv
 const maiores_cidades = [];
 const empresas = [];
 const empresas_distancias = [];
+
+var con = mysql.createConnection({
+    host: "megazord.cbjpuzkhqslx.sa-east-1.rds.amazonaws.com",
+    user: "admin",
+    password: "ixBzf38fY8",
+    database: "progcd"
+});
 
 fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
 
@@ -76,6 +97,13 @@ fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
             empresas[i].dist4 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[0]); //Camaçari
         }
 
-        console.log(empresas);
+        //console.log(empresas);
+
+        con.connect((err) => {
+            if(err) throw err;
+            console.log("Connected");
+        });
+
+
     })
 })
