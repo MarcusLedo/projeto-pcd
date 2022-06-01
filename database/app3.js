@@ -23,9 +23,10 @@ function getCompany(row){
     const properties = Object.getOwnPropertyNames(row);
     const company = {};
 
-    company.nome = row[properties[0]];
-    company.lat = row[properties[7]];
-    company.lng = row[properties[8]];
+    company.id = row[properties[0]]
+    company.nome = row[properties[1]];
+    company.lat = row[properties[8]];
+    company.lng = row[properties[9]];
 
     return company;
 }
@@ -46,16 +47,22 @@ function calculateDistanceUsingLatLonInKm(company, city) {
     return ((R * c *1000).toFixed()) / 1000;
 }
 
-function insertDistancesIntoCompanies(empresa){
+function updateCompanies(empresa){
     let sql = `UPDATE Empresa SET 
         dist_1 = ?,
         dist_2 = ?,
         dist_3 = ?,
         dist_4 = ?
-        WHERE nome_fantasia = ?`;
+        WHERE id = ?`;
 
-    let values = [empresa.dist1, empresa.dist2, empresa.dist3, empresa.dist4, empresa.nome];
+    let values = [empresa.dist1, empresa.dist2, empresa.dist3, empresa.dist4, empresa.id];
 
+    con.query(sql, values, (err, result, fields) => {
+        if (err){
+          return console.error(err.message);
+        }
+        console.log('Rows affected:', result.affectedRows);
+    });
 }
 
 //_____________________________________________________________________________________________________________________________________
@@ -69,7 +76,6 @@ const empresa_saida_path = "/home/marcusledo/Documents/atividade2/CSVs/saida.csv
 
 const maiores_cidades = [];
 const empresas = [];
-const empresas_distancias = [];
 
 var con = mysql.createConnection({
     host: "megazord.cbjpuzkhqslx.sa-east-1.rds.amazonaws.com",
@@ -90,20 +96,25 @@ fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
         //console.log("empresa: " + empresas[0].lat + "   " + empresas[0].lng);
         //console.log("cidade: " + maiores_cidades[2].lat + "   " + maiores_cidades[2].lng);
 
-        for(let i = 0; i < empresas.length; i++){
-            empresas[i].dist1 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[2]); //Salvador
-            empresas[i].dist2 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[1]); //Feira de Santana
-            empresas[i].dist3 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[3]); //Vitoria de Conquista
-            empresas[i].dist4 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[0]); //Camaçari
-        }
-
-        //console.log(empresas);
-
         con.connect((err) => {
             if(err) throw err;
             console.log("Connected");
         });
 
+        console.log(empresas.length);
+
+        for(let i = 0; i < empresas.length; i++){
+            empresas[i].dist1 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[2]); //Salvador
+            empresas[i].dist2 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[1]); //Feira de Santana
+            empresas[i].dist3 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[3]); //Vitoria de Conquista
+            empresas[i].dist4 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[0]); //Camaçari
+
+            updateCompanies(empresas[i]);
+        }
+
+        con.end((err) => {
+            if (err) return console.log(err.message)
+        });
 
     })
 })

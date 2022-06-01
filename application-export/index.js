@@ -16,6 +16,11 @@ const connection = mysql.createConnection({
     database: "progcd"
 });
 
+connection.connect((err) => {
+    if(err) throw err;
+    console.log("Connected");
+});
+
 app.get("/exportcsv", (req, res) => {
     connection.query("SELECT * FROM saida", function(err,data){
         if(err) throw err;
