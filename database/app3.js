@@ -93,8 +93,6 @@ fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
     fs.createReadStream(empresa_saida_path).pipe(csv()).on('data', (row) => {
         empresas.push(getCompany(row));
     }).on('end', () => {
-        //console.log("empresa: " + empresas[0].lat + "   " + empresas[0].lng);
-        //console.log("cidade: " + maiores_cidades[2].lat + "   " + maiores_cidades[2].lng);
 
         con.connect((err) => {
             if(err) throw err;
