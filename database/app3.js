@@ -101,7 +101,6 @@ fs.createReadStream(cidade_path).pipe(csv()).on('data', (row) => {
             console.log("Connected");
         });
 
-        console.log(empresas.length);
 
         for(let i = 0; i < empresas.length; i++){
             empresas[i].dist1 = calculateDistanceUsingLatLonInKm(empresas[i], maiores_cidades[2]); //Salvador
